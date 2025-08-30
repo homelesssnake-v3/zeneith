@@ -36,6 +36,7 @@ export const PersonListItem = ({
   const [lastMessageFrom, setLastMessageFrom] = useState(person.lastMessageFrom);
   const [lastMessageStatus, setLastMessageStatus] = useState(person.lastMessageStatus);
   const [lastMessage, setLastMessage] = useState(person.lastMessage);
+  const [lastMessageTimestamp, setLastMessageTimestamp] = useState(person.lastMessageTimestamp);
   
   useEffect(() => {
     socket?.emit("online", { number: person.number, sender: user?.number as string });
@@ -51,13 +52,17 @@ export const PersonListItem = ({
         setOnline(data.online);
       }
     };
+    
 
+ 
     socket?.on("user-status", handleuserStatus);
     socket?.on("online", handleOnline);
+
 
     return () => {
       socket?.off("user-status", handleuserStatus);
       socket?.off("online", handleOnline);
+     
     };
   }, [socket, person.number, user]);
 
@@ -99,10 +104,10 @@ export const PersonListItem = ({
               <motion.div className="flex items-center justify-between text-xs text-gray-500 max-sm:text-xs">
                 <div className="flex items-center gap-1">
                   {lastMessageFrom === "You" && <div>You: </div>}
-                  <p className={`${lastMessageStatus !== "sent"&&lastMessageFrom !== "You" ? "font-bold text-indigo-500" : ""}`}>{lastMessage}</p>
+                  <p className={`${lastMessageStatus !== "seen"&&lastMessageFrom !== "You" ? "font-bold text-indigo-500" : ""}`}>{lastMessage}</p>
                 </div>
                 <p className="ml-2 ">
-                  {new Date(person.lastMessageTimestamp).toLocaleTimeString([], {
+                  {new Date(lastMessageTimestamp).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
@@ -118,7 +123,7 @@ export const PersonListItem = ({
               </motion.p>
             )}
           </div>
-          {lastMessageFrom !== "You" && (
+          {lastMessageFrom !== "You" && lastMessageStatus !== "seen" && (
             <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full"></div>
           )}
 

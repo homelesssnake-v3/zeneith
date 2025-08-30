@@ -198,6 +198,8 @@ export default function ChatCard({
 
     // Emit the message
     socket.emit("message", message);
+    socket.emit("friendreload", {number: recipient.number});
+   
   };
 
   return (

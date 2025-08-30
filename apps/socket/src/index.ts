@@ -73,7 +73,11 @@ io.on("connection", (socket) => {
 
 
  
-
+ socket.on("friendreload", (data: {number: string}) => {
+  const socketId = userSocketMap[data.number];
+  if(!socketId){return;}
+  io.to(socketId).emit("friendreload");
+ });
 
 
   socket.on("message", async (data: MessageData) => {

@@ -14,13 +14,14 @@ export const SendMoneyCard = ({ onSendMoney,setFriendRefresh,setPeople,setRefres
     
     
 useEffect(() => {
-    setLoading(true);
+   
   
        
     const debounce = setTimeout(async () => {
       
  
         if(query && query.length>0){
+            setLoading(true);
             const foundusers = await axios.get(`/api/p2p/search?query=${query}`).then(res => res.data);
             console.log(foundusers);
             setPeople(foundusers);

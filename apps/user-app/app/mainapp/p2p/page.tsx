@@ -5,6 +5,7 @@ import { useState,useEffect } from "react";
 import { addFriend,getTransactions } from "../../../actions/p2p";
 import { useDispatch, useSelector } from "react-redux";
 import {setFriends } from "@repo/redux/slices/friendssclice";
+import { useSocket } from "@repo/ui/Socketcontext";
 
 
 import axios from "axios";
@@ -15,15 +16,26 @@ export default function P2P() {
     const [refresh,setRefresh] = useState(false);
     const [people, setPeople] = useState<any[]>([]);
     const [transactions, setTransactions] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [firstload,setFirstload] = useState(true);
     const [query, setQuery] = useState<string>('');
     const [friendrefresh,setFriendRefresh] = useState(false);
     const dispatch = useDispatch(); 
+    const socket = useSocket();
     const mobileRowSpan =
   people.length === 0 || people.length <= 2 ? "max-sm:row-span-3":
   people.length <4 ? "max-sm:row-span-4"
   : people.length < 10 ? "max-sm:row-span-5"
   : "max-sm:row-span-6";
+
+
+  useEffect(() => {
+    const friendrefreshhandler = () => {setFriendRefresh(prev => !prev);};
+    socket?.on("friendreload", friendrefreshhandler);
+    return () => {
+      socket?.off("friendreload", friendrefreshhandler);
+    };
+  }, [socket,query]);
 
 useEffect(() => {
     const fx = async () => {
@@ -38,19 +50,24 @@ useEffect(() => {
 
 
 
- useEffect(() => {
-
-    if(query.length===0 || query == ""){
-        setLoading(true);
-        const fx = async () => {
-            const friends = await axios.get(`/api/p2p/friends`).then(res => res.data);
-            dispatch(setFriends(friends));
-            setPeople(friends as any[]);
-            setLoading(false);
+useEffect(() => {
+    if (query.length === 0) {
+        const fetchFriends = async () => {
+            setLoading(true);
+            try {
+                const friends = await axios.get(`/api/p2p/friends`).then(res => res.data);
+                setPeople(friends);
+                dispatch(setFriends(friends));
+            } catch (error) {
+                console.error("Error fetching friends:", error);
+            } finally {
+             setLoading(false);
+        
+            }
         };
-     fx();
+        fetchFriends();
     }
- }, [query,friendrefresh]);
+}, [query, friendrefresh]);
 
     return (
         <div className=" h-[calc(100vh-100px)] max-sm:h-[calc(100vh-64px)] grid mx-20  max-sm:mx-2 max-sm:ml-14 grid-cols-3 max-sm:grid-cols-1 grid-rows-8 max-sm:grid-rows-10 gap-6 max-sm:gap-1 items-start "> 
