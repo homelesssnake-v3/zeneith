@@ -123,7 +123,7 @@ export const PersonListItem = ({
               </motion.p>
             )}
           </div>
-          {lastMessageFrom !== "You" && lastMessageStatus !== "seen" && (
+          {lastMessageFrom !== "You" && lastMessageStatus !== "seen" && lastMessageStatus && (
             <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full"></div>
           )}
 

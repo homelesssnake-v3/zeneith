@@ -17,7 +17,7 @@ export default function P2P() {
     const [people, setPeople] = useState<any[]>([]);
     const [transactions, setTransactions] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const [firstload,setFirstload] = useState(true);
+    const [dontwait,setDontwait] = useState(false);
     const [query, setQuery] = useState<string>('');
     const [friendrefresh,setFriendRefresh] = useState(false);
     const dispatch = useDispatch(); 
@@ -30,7 +30,7 @@ export default function P2P() {
 
 
   useEffect(() => {
-    const friendrefreshhandler = () => {setFriendRefresh(prev => !prev);};
+    const friendrefreshhandler = () => {setFriendRefresh(prev => !prev); setDontwait(true);};
     socket?.on("friendreload", friendrefreshhandler);
     return () => {
       socket?.off("friendreload", friendrefreshhandler);
@@ -53,21 +53,31 @@ useEffect(() => {
 useEffect(() => {
     if (query.length === 0) {
         const fetchFriends = async () => {
+
+        if(!dontwait){
             setLoading(true);
+        }
+            
             try {
                 const friends = await axios.get(`/api/p2p/friends`).then(res => res.data);
-                setPeople(friends);
+                setPeople([]);
+                setTimeout(() => {
+                    setPeople(friends);
+                }, 1);
                 dispatch(setFriends(friends));
             } catch (error) {
                 console.error("Error fetching friends:", error);
             } finally {
-             setLoading(false);
+             if(!dontwait){
+                setLoading(false);
+                setDontwait(false);
+             }
         
             }
         };
         fetchFriends();
     }
-}, [query, friendrefresh]);
+}, [query, friendrefresh,dontwait]);
 
     return (
         <div className=" h-[calc(100vh-100px)] max-sm:h-[calc(100vh-64px)] grid mx-20  max-sm:mx-2 max-sm:ml-14 grid-cols-3 max-sm:grid-cols-1 grid-rows-8 max-sm:grid-rows-10 gap-6 max-sm:gap-1 items-start "> 
