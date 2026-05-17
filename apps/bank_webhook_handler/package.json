@@ -3,13 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
-  
-    "scripts": {
-      "dev": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js  & node dist/index.js"
-    },
-  
-  
   "type": "commonjs",
+  "scripts": {
+    "dev": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js & node dist/index.js",
+    "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js",
+    "start": "node dist/index.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
